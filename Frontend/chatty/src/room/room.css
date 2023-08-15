@@ -18,7 +18,52 @@
 }
 .message_input {
     flex : 5;
+    min-height : 4vh;
 }
 .message_submit {
     flex : 1;
+}
+
+.main_container {
+    min-height : 95vh;
+}
+
+.reverse {
+    flex-direction:row-reverse;
+}
+
+
+.message_list {
+
+   
+    min-height: 3rem;
+}
+
+.message_list_item {
+    display: flex;
+    margin-top: 5px;
+    
+}
+
+.message_sub_item {
+    display : flex;
+ align-items: center;
+ vertical-align: middle;
+}
+
+.chat {
+
+    background-color: #273c75;
+    padding : 5px;
+    border-radius: 20% 20% 20% 0%;
+}
+.chat_reverse {
+
+    background-color: #273c75;
+    padding : 5px;
+    border-radius: 20% 20% 0% 20%;
+}
+
+.online_circle {
+  align-self: center;
 }

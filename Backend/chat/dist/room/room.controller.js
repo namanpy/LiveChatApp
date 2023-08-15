@@ -33,7 +33,8 @@ let RoomController = exports.RoomController = class RoomController {
         return { message: "success", room };
     }
     async getMessages(fetchDetails) {
-        return await this.messageService.getRoomMessages(fetchDetails.roomname, fetchDetails.upperlimit, fetchDetails.lowerlimit);
+        const messages = await this.messageService.getRoomMessages(fetchDetails.roomname, fetchDetails.upperlimit, fetchDetails.lowerlimit);
+        return { message: 'succes', messages };
     }
 };
 __decorate([

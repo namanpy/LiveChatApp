@@ -42,8 +42,9 @@ body {
     flex : 1;
 }
 .room_info_container {
-
-    flex : 4;
+    overflow-y: scroll;
+    max-height: 95vh;
+    flex : 3;
 }
 .sidebar {
     /* flex-basis: 15%; */

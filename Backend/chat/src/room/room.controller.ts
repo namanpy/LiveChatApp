@@ -30,8 +30,8 @@ export class RoomController {
   @UseGuards(AuthGuard)
   async getMessages(@Body() fetchDetails : FetchMessageDTO) {
 
-    return await this.messageService.getRoomMessages(fetchDetails.roomname, fetchDetails.upperlimit, fetchDetails.lowerlimit);
-    
+    const messages = await this.messageService.getRoomMessages(fetchDetails.roomname, fetchDetails.upperlimit, fetchDetails.lowerlimit);
+    return { message : 'succes', messages } 
   }
 
 }

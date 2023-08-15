@@ -38,6 +38,11 @@ export default class Repo {
 
         return data.data;
     }
+    static async getMessages(roomname, lowerlimit, upperlimit) {
+        let data = await axios.post(Repo.BASE_URL + '/room/getMessages', { roomname, lowerlimit, upperlimit}, Auth.getHeader());
+
+        return data.data;
+    }
 
 
 }

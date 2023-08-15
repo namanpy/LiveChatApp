@@ -13,5 +13,8 @@ export declare class RoomController {
         message: string;
         room: import("./schema/room.schema").Room[];
     }>;
-    getMessages(fetchDetails: FetchMessageDTO): Promise<import("../message/schema/message.schema").Message[]>;
+    getMessages(fetchDetails: FetchMessageDTO): Promise<{
+        message: string;
+        messages: import("../message/schema/message.schema").Message[];
+    }>;
 }
