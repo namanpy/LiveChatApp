@@ -9,6 +9,7 @@ import {
 import { Login, Register } from './auth/auth';
 import { RoomList } from './room/roomlist';
 import { Room } from './room/room';
+import { Header } from './header/header';
 
 const router = createBrowserRouter([
   {
@@ -20,7 +21,7 @@ const router = createBrowserRouter([
     element :  <Login/>
   },
   {
-    path : '/rooms',
+    path : '/',
     element :  <RoomList/>
   },
   {
@@ -31,8 +32,11 @@ const router = createBrowserRouter([
 ]);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  
+  <div className='rootContainer'>
+    <Header></Header>
     <RouterProvider router={router} ></RouterProvider>
+  </div>
+
   
 );
 

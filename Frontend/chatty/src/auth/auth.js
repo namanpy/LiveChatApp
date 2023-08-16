@@ -67,7 +67,7 @@ export const Login = function() {
 
             set_info_message('Login successful, redirecting..');
             setTimeout(() => {
-                window.location.href = '/rooms';
+                window.location.href = '/';
             }, 2000);
             
 

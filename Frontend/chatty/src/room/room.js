@@ -8,6 +8,12 @@ let socket= undefined;
 
 export const Room = (props) => {
 
+    if( !Auth.getToken() || Auth.getExpiry() <= (new Date())) {
+
+        console.log(Auth.getExpiry() )
+        window.location.href = '/login';
+    }
+
     const  [messagelist, setMessagelist] = useState([]);
     const  [message, setMessage] = useState("");
     const  [socket, setSocket] = useState();
@@ -71,7 +77,7 @@ export const Room = (props) => {
     }
 
     const getOnlineStatus = (username) => {
-        if(onlineusers[username]) { return 'green'}
+        if(onlineusers.includes(username)) { return 'green'}
         return 'red';
     }
     useEffect(
@@ -115,7 +121,7 @@ export const Room = (props) => {
 
     return (
         
-        <div >
+        <div className="main_parent_container">
             { Auth.getToken() ? '' : window.location.href = '/login' }
             <div className="main_container">
                 <div className="sidebar"> 

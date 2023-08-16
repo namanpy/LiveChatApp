@@ -2,8 +2,8 @@ import axios from 'axios';
 
 export default class Repo {
 
-    static BASE_URL = 'http://localhost:3001'
-    static WS_URL = 'ws://localhost:82'
+    static BASE_URL = 'http://ec2-18-139-114-47.ap-southeast-1.compute.amazonaws.com:3001'
+    static WS_URL = 'ws://ec2-18-139-114-47.ap-southeast-1.compute.amazonaws.com:82'
     static async createUser(username, password) {
         
         let data = await axios.post(Repo.BASE_URL + '/user/create', { username, password });
@@ -21,7 +21,9 @@ export default class Repo {
         }
         config.headers.authorization = 'Bearer ' + token;
 
-        let userData = { config, username, token }
+        let expirydate = new Date()
+        expirydate.setHours(expirydate.getHours() + 12);
+        let userData = { config, username, token, expirydate }
         
         localStorage.setItem('userData',JSON.stringify(userData));
         return data;
@@ -49,6 +51,12 @@ export default class Repo {
 
 export class Auth {
 
+    static logout() {
+
+        localStorage.removeItem('userData');
+
+
+    }
     static getToken() {
         return JSON.parse(localStorage.getItem('userData')).token; 
     }
@@ -57,5 +65,9 @@ export class Auth {
     }
     static getUsername() {
         return JSON.parse(localStorage.getItem('userData')).username; 
+    }
+    static getExpiry() {
+        console.log('expiring at ', new Date(JSON.parse(localStorage.getItem('userData')).expirydate));
+        return new Date(JSON.parse(localStorage.getItem('userData')).expirydate); 
     }
 } 
