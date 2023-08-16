@@ -23,6 +23,9 @@ class ChatRoom {
     getUsers() {
         return this.users;
     }
+    getOnlineUsers() {
+        return this.users;
+    }
     getUserSocket(username) {
         return this.userToSocket[username];
     }
@@ -83,10 +86,16 @@ let ChatGateway = exports.ChatGateway = class ChatGateway {
             this.roomList[roomname] = new ChatRoom();
             this.roomList[roomname].addUser(socket, username);
             this.userToRoomMap[socket.id] = roomname;
+            this.roomList[roomname].getUsers().forEach(name => {
+                this.roomList[roomname].getUserSocket(name).emit("receiveOnlineUserList", { users: this.roomList[roomname].getUsers(), roomname: roomname });
+            });
             return;
         }
         this.roomList[roomname].addUser(socket, username);
         this.userToRoomMap[socket.id] = roomname;
+        this.roomList[roomname].getUsers().forEach(name => {
+            this.roomList[roomname].getUserSocket(name).emit("receiveOnlineUserList", { users: this.roomList[roomname].getUsers(), roomname: roomname });
+        });
         return;
     }
     createMessage(socket, data) {
@@ -99,11 +108,20 @@ let ChatGateway = exports.ChatGateway = class ChatGateway {
             this.messageService.createMessage(body, username, roomname);
             console.log(this.roomList[roomname].getUsers());
             this.roomList[roomname].getUsers().forEach(name => {
-                this.roomList[roomname].getUserSocket(name).emit("message", { username: username, body: body, roomname: roomname });
+                this.roomList[roomname].getUserSocket(name).emit("receiveOnlineUserList", { users: this.roomList[roomname].getUsers(), roomname: roomname });
             });
             return;
         }
         return false;
+    }
+    getOnlineUsers(socket, data) {
+        const roomname = data.roomname;
+        if (!this.roomList[roomname]) {
+            socket.emit('receiveOnlineUserList', { user: [], roomname });
+            return;
+        }
+        console.log({ user: this.roomList[roomname].getOnlineUsers(), roomname });
+        socket.emit('receiveOnlineUserList', { user: this.roomList[roomname].getOnlineUsers(), roomname });
     }
     handleDisconnect(socket) {
         console.log('disconnected');
@@ -126,6 +144,12 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
     __metadata("design:returntype", void 0)
 ], ChatGateway.prototype, "createMessage", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('getonlineusers'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", void 0)
+], ChatGateway.prototype, "getOnlineUsers", null);
 exports.ChatGateway = ChatGateway = __decorate([
     (0, websockets_1.WebSocketGateway)(82, { cors: true }),
     __metadata("design:paramtypes", [message_service_1.MessageService])

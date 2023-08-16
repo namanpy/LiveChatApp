@@ -8,5 +8,6 @@ export declare class ChatGateway implements OnGatewayDisconnect {
     constructor(messageService: MessageService);
     handleJoin(socket: Socket, data: any): void;
     createMessage(socket: Socket, data: any): boolean;
+    getOnlineUsers(socket: Socket, data: any): void;
     handleDisconnect(socket: Socket): void;
 }

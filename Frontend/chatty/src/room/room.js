@@ -15,13 +15,38 @@ export const Room = (props) => {
     const  incrementAmt = 25;
     const  [lowerlimit, setLowerlimit] = useState(0);
     const  [upperlimit, setUpperlimit] = useState(incrementAmt);
+    const  [firstFetch, setfirstFetch] = useState(true);
+    const  [onlineusers, setOnlineUsers] = useState([]);
     const ref = useRef(0);
-    const generateColor = () => {
-        const color = Math.random().toString(16).substr(-6);
-        console.log(color);
-        return color;
-    };
 
+
+    async function fetchOld( lowerlimit, upperlimit) {
+
+        try {
+            console.log('fetching old with lower ', lowerlimit, ' and upper ', upperlimit);
+            let data = await Repo.getMessages(roomname, lowerlimit, upperlimit);
+
+            let messages = [];
+            data.messages.forEach(msg => {
+                messages.push( {
+                    username : msg.byUser,
+                    body  : msg.body,
+                    createdAt : msg.createdAt
+                }
+                );
+            });
+
+            setMessagelist(
+                (messagelist) => { 
+                    return [...messagelist,...messages.reverse() ]  
+                }
+            )
+            setfirstFetch(false);
+        } 
+        catch(err) {
+            console.log(err)
+        }
+    }
     
     const sendMessage = (e) => {
         e.preventDefault();
@@ -35,10 +60,19 @@ export const Room = (props) => {
     }
 
     const onScroll = () => {
-        console.log(ref.current.scrollTop)
-        if(ref.current.scrollTop === 0) {
-            console.log('top reached')
+        if( -Math.floor( ref.current.scrollTop ) === ref.current.scrollHeight - ref.current.offsetHeight){
+
+            fetchOld(lowerlimit + incrementAmt, upperlimit+incrementAmt);
+            setLowerlimit(lowerlimit + incrementAmt);
+            setUpperlimit(upperlimit + incrementAmt);
+            ref.current.scrollTop = ref.current.scrollTop + 1;
         }
+        
+    }
+
+    const getOnlineStatus = (username) => {
+        if(onlineusers[username]) { return 'green'}
+        return 'red';
     }
     useEffect(
         () => {
@@ -52,39 +86,31 @@ export const Room = (props) => {
 
                 socket_.on('message', (data) => {
                     setMessagelist(
-                        (messagelist) => { return [...messagelist,{ body : data.body, username : data.username }  ] });
+                        (messagelist) => { return [{ body : data.body, username : data.username } , ...messagelist ] });
                 })
-            
-                async function fetchOld() {
+                
+                
+                socket_.on('receiveOnlineUserList', (data) => {
+                    setOnlineUsers(
+                        (onlineusers) => { return [...data.users] });
+                })
 
-                    try {
-                        let data = await Repo.getMessages(roomname, lowerlimit, upperlimit);
-    
-                        let messages = [];
-                        data.messages.forEach(msg => {
-                            messages.push( {
-                                username : msg.byUser,
-                                body  : msg.body,
-                                createdAt : msg.createdAt
-                            }
-                            );
-                        });
-                        setMessagelist(
-                            (messagelist) => { 
-                                return [...messagelist, ...messages]  
-                            }
-                        )
-                    } 
-                    catch(err) {
-                        console.log(err)
-                    }
-                }
-                fetchOld();
-    
+                fetchOld(lowerlimit, upperlimit).then(
+                    () => { console.log( "setting to", ref.current.scrollHeight  ); ref.current.scrollTop = ref.current.scrollHeight }
+                );
+                
             
         }
     , []);
 
+    useEffect( () => {
+        if(firstFetch) {
+     
+           setTimeout( () =>  {
+            console.log( "setting to fianl", ref.current.scrollHeight  );
+            ref.current.scrollTop = ref.current.height }, 3000);
+        }
+    }, [messagelist])
 
     return (
         
@@ -95,16 +121,22 @@ export const Room = (props) => {
                     <div className='room_container'>
                         <h3>Users online</h3>
 
-                        <div> Naman </div>
+                        { onlineusers.map(
+                            (item) => {
+
+                                return <div> { item } </div>
+                            }
+                        ) }
+                        
 
     
                     </div>
                 </div>
-                <div className="room_info_container" ref = {ref} onScroll={(e) => onScroll()}>
+                <div className="message_info_container" ref = {ref} onScroll={(e) => onScroll()}>
 
                     
                     { messagelist.map(
-                        msg => {
+                        (msg, index) => {
                             console.log(messagelist.length);
                             if(msg.username === Auth.getUsername()) {
                                 return (
@@ -126,7 +158,7 @@ export const Room = (props) => {
                                     <div className="message_list_item ">
                                        
                                        <div className="message_sub_item">
-                                            <div className="online_circle circle" style={ { backgroundColor : 'green'  } }> </div>
+                                            <div className="online_circle circle" style={ { backgroundColor : getOnlineStatus()  } }> </div>
 
                                        </div>
                                        

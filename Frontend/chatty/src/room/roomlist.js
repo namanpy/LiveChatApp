@@ -1,33 +1,73 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import Repo, { Auth } from "../repo/apiRepo"
 import './roomlist.css'
+import io from 'socket.io-client';
 export const RoomList = () => {
 
     const  [roomlist, setRoomlist] = useState([]);
     const [roomname, setRoomname] = useState("");
     const [description, setDescription] = useState("");
     const [info_message, set_info_message] = useState(undefined);
+    const [onlineusers, setOnlineUsers] = useState({ "bedroom" : 0});
+    const socket = useRef();
     const generateColor = () => {
         const color = Math.random().toString(16).substr(-6);
         console.log(color);
         return color;
     };
-    const onCreateRoom = e => {
 
+    async function func() {
+        try {
+            let data = await Repo.getRoomList();
+
+            data.room.forEach(
+                (room) => {
+                    if(socket.current) socket.current.emit('getonlineusers', { roomname : room.roomname });
+                }
+            );
+            setRoomlist(data.room);
+        } 
+        catch(err) {
+            console.log(err)
+        }
+    }
+
+    const onCreateRoom = async e => {
+        try {
+            let data = await Repo.createRoom(roomname, description);
+
+            set_info_message('Created room '+ roomname);
+            func();
+            
+
+        } catch(err) {
+            console.log(err);
+            set_info_message(err.response.data.message)
+
+        }
 
     };
     useEffect(
         () => {
-            async function func() {
-                try {
-                    let data = await Repo.getRoomList();
 
-                    setRoomlist(data.room);
-                } 
-                catch(err) {
-                    console.log(err)
-                }
-            }
+
+            const socket_ = io('ws://localhost:82');
+            socket.current = socket_;
+            socket_.on('connect', () => {
+                console.log('connected to ws');
+            });
+
+            socket_.on('receiveOnlineUserList', (data) => {
+
+                setOnlineUsers(
+                    (onlineusers) => {
+                        onlineusers[data.roomname] = data.user.length;
+                        const newOnlineusers = JSON.parse(JSON.stringify(onlineusers));
+                        return newOnlineusers;
+                    }
+                );
+            })
+
             func();
         }
     , []);
@@ -48,7 +88,7 @@ export const RoomList = () => {
 
                         <div className="input_container input">
                             <label className='input_element' htmlFor='password' >Description</label>
-                            <textarea className='input_element' rows={10} type='password' name='password' value={description} onChange={e => setDescription(e.target.value)}></textarea>
+                            <textarea className='input_element' rows={10}  value={description} onChange={e => setDescription(e.target.value)}></textarea>
                         </div>
 
                         <div className="input_container input submit">
@@ -57,12 +97,12 @@ export const RoomList = () => {
 
                         <em className='input_element' > { info_message }</em>
                     </div>
-
+{/* 
                     <div className='room_container'>
                         <h3>Your rooms</h3>
 
     
-                    </div>
+                    </div> */}
                 </div>
                 <div className="room_info_container">
 
@@ -89,7 +129,7 @@ export const RoomList = () => {
                                   
                                     </div>
                                     <div className="room_list_item"> 
-                                           <b>40 users online</b>
+                                           <b>{ onlineusers[room.roomname] } users online</b>
                                     </div>
                                     
                                     <div className="room_list_item"> 

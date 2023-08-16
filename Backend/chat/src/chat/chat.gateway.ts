@@ -14,6 +14,9 @@ class ChatRoom {
     return this.users;
   }
 
+  getOnlineUsers() : string[] {
+    return this.users;
+  }
   getUserSocket(username : string) : Socket {
     return this.userToSocket[username];
 
@@ -98,11 +101,22 @@ export class ChatGateway implements OnGatewayDisconnect {
 
       this.roomList[roomname].addUser(socket, username);
       this.userToRoomMap[socket.id] = roomname; 
+
+
+      this.roomList[roomname].getUsers().forEach(name => {
+        this.roomList[roomname].getUserSocket(name).emit("receiveOnlineUserList", { users : this.roomList[roomname].getUsers(),  roomname : roomname } )
+      });
+        
+  
+      
       return;
 
     }
     this.roomList[roomname].addUser(socket, username);
     this.userToRoomMap[socket.id] = roomname; 
+    this.roomList[roomname].getUsers().forEach(name => {
+      this.roomList[roomname].getUserSocket(name).emit("receiveOnlineUserList", { users : this.roomList[roomname].getUsers() , roomname : roomname} )
+    });
     return ;
   }
 
@@ -120,7 +134,8 @@ export class ChatGateway implements OnGatewayDisconnect {
       
       console.log(this.roomList[roomname].getUsers());
       this.roomList[roomname].getUsers().forEach(name => {
-        this.roomList[roomname].getUserSocket(name).emit("message", { username : username, body : body, roomname : roomname } )
+      
+        this.roomList[roomname].getUserSocket(name).emit("receiveOnlineUserList", { users :  this.roomList[roomname].getUsers(),  roomname : roomname } )
       });
       return;
 
@@ -128,6 +143,23 @@ export class ChatGateway implements OnGatewayDisconnect {
     return false;
   }
 
+  @SubscribeMessage('getonlineusers')
+  getOnlineUsers(socket : Socket, data : any)  {
+    const roomname = data.roomname;
+    if(!this.roomList[roomname]) {
+
+      socket.emit(
+        'receiveOnlineUserList', 
+        { user : [], roomname }
+      );
+      return;
+    }
+    console.log( { user : this.roomList[roomname].getOnlineUsers(), roomname })
+    socket.emit(
+      'receiveOnlineUserList', 
+      { user : this.roomList[roomname].getOnlineUsers(), roomname }
+    );
+  }
   
   handleDisconnect(socket : Socket) {
     console.log('disconnected');
@@ -138,5 +170,7 @@ export class ChatGateway implements OnGatewayDisconnect {
       this.roomList[roomname].removeUser(socket);
     }
   }
+
+  
   
 } 
