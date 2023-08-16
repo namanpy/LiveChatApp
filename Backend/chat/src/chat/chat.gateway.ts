@@ -135,7 +135,7 @@ export class ChatGateway implements OnGatewayDisconnect {
       console.log(this.roomList[roomname].getUsers());
       this.roomList[roomname].getUsers().forEach(name => {
       
-        this.roomList[roomname].getUserSocket(name).emit("receiveOnlineUserList", { users :  this.roomList[roomname].getUsers(),  roomname : roomname } )
+        this.roomList[roomname].getUserSocket(name).emit("message", { username :  username,  roomname : roomname , body : body } );
       });
       return;
 

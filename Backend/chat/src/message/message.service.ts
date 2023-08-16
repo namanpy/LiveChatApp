@@ -24,7 +24,8 @@ export class MessageService {
     }
     async getRoomMessages(roomname : string, upperlimit : number, lowerlimit : number) : Promise<Message[]> {
 
-        let messages = this.messageModel.find({ room : roomname }).sort('createdAt').skip(lowerlimit).limit(upperlimit);
+        let messages = this.messageModel.find({ room : roomname }).sort( { createdAt : -1} ).skip(lowerlimit).limit(upperlimit-lowerlimit);
+        
         return messages;
     }
 
