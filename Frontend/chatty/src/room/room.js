@@ -38,7 +38,7 @@ export const Room = (props) => {
 
             setMessagelist(
                 (messagelist) => { 
-                    return [...messagelist,...messages.reverse() ]  
+                    return [ ...messagelist, ...messages ]  
                 }
             )
             setfirstFetch(false);
@@ -85,6 +85,7 @@ export const Room = (props) => {
                 })
 
                 socket_.on('message', (data) => {
+                    console.log("message aaaya!");
                     setMessagelist(
                         (messagelist) => { return [{ body : data.body, username : data.username } , ...messagelist ] });
                 })

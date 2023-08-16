@@ -51,7 +51,7 @@ export const RoomList = () => {
         () => {
 
 
-            const socket_ = io('ws://localhost:82');
+            const socket_ = io(Repo.WS_URL);
             socket.current = socket_;
             socket_.on('connect', () => {
                 console.log('connected to ws');
