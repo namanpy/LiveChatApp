@@ -3,7 +3,7 @@ import axios from 'axios';
 export default class Repo {
 
     static BASE_URL = 'http://localhost:3001'
-   
+    static WS_URL = 'ws://localhost:82'
     static async createUser(username, password) {
         
         let data = await axios.post(Repo.BASE_URL + '/user/create', { username, password });

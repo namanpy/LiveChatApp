@@ -77,7 +77,7 @@ export const Room = (props) => {
     useEffect(
         () => {
             
-                let socket_ = io('ws://localhost:82');
+                let socket_ = io(Repo.WS_URL);
                 setSocket(socket_);
                 socket_.on('connect', () => {
                     console.log('connected to ws');
