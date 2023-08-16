@@ -16,7 +16,7 @@ export class AuthGuard implements CanActivate {
 
     let jwt = require('jsonwebtoken');
     try { 
-      let decoded = jwt.verify(token, 'secret_key_here');
+      let decoded = jwt.verify(token, process.env.JWT_SECRET);
       request.token = decoded;
     }  catch(err) {
       throw new UnauthorizedException('Auth failed.');

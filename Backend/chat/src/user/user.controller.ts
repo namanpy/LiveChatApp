@@ -22,7 +22,7 @@ export class UserController {
 
     await this.userService.find(user.username, user.password);
 
-    let token = jwt.sign( { username : user.username} ,'secret_key_here', {expiresIn : '12h' }  );
+    let token = jwt.sign( { username : user.username} ,process.env.JWT_SECRET, {expiresIn : '12h' }  );
 
     return { message : "success", token  }
   }

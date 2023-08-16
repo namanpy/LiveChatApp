@@ -6,8 +6,22 @@ import { MongooseModule} from '@nestjs/mongoose';
 import { RoomModule } from './room/room.module';
 import { MessageModule } from './message/message.module';
 import { ChatModule } from './chat/chat.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 @Module({
-  imports: [MongooseModule.forRoot('mongodb+srv://yoripe:yoripe123@namanpy.fr257.mongodb.net/?retryWrites=true&w=majority'), UserModule, RoomModule, MessageModule, ChatModule],
+  imports: [ConfigModule.forRoot({
+    isGlobal: true,
+  }),
+  MongooseModule.forRootAsync( 
+  {
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) =>{
+        console.log(process.env)
+        return ({
+          uri: config.get<string>('DATABASE_STRING')
+        }) 
+      }
+  }), UserModule, RoomModule, MessageModule, ChatModule],
   controllers: [],
   providers: [AppService, ChatModule],
 })

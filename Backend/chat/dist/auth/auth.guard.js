@@ -18,7 +18,7 @@ let AuthGuard = exports.AuthGuard = class AuthGuard {
         }
         let jwt = require('jsonwebtoken');
         try {
-            let decoded = jwt.verify(token, 'secret_key_here');
+            let decoded = jwt.verify(token, process.env.JWT_SECRET);
             request.token = decoded;
         }
         catch (err) {

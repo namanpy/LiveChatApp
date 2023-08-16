@@ -14,11 +14,24 @@ const mongoose_1 = require("@nestjs/mongoose");
 const room_module_1 = require("./room/room.module");
 const message_module_1 = require("./message/message.module");
 const chat_module_1 = require("./chat/chat.module");
+const config_1 = require("@nestjs/config");
 let AppModule = exports.AppModule = class AppModule {
 };
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [mongoose_1.MongooseModule.forRoot('mongodb+srv://yoripe:yoripe123@namanpy.fr257.mongodb.net/?retryWrites=true&w=majority'), user_module_1.UserModule, room_module_1.RoomModule, message_module_1.MessageModule, chat_module_1.ChatModule],
+        imports: [config_1.ConfigModule.forRoot({
+                isGlobal: true,
+            }),
+            mongoose_1.MongooseModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: async (config) => {
+                    console.log(process.env);
+                    return ({
+                        uri: config.get('DATABASE_STRING')
+                    });
+                }
+            }), user_module_1.UserModule, room_module_1.RoomModule, message_module_1.MessageModule, chat_module_1.ChatModule],
         controllers: [],
         providers: [app_service_1.AppService, chat_module_1.ChatModule],
     })
